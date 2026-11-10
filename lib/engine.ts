@@ -34,6 +34,9 @@ const DEFAULT_CUPS: { t: number; kind: Drink }[] = [
   { t: 15.5, kind: "matcha" },
 ];
 export const MAX_CUPS = 10;
+/** Credit link drawn as HTML over the canvas; the engine only decides where it sits. */
+export const CREDIT = { text: "made by @tomassabol", href: "https://github.com/tomassabol" };
+const CREDIT_SIZE = 17;
 
 const BG: RGB = [12, 12, 12];
 const BLUE: RGB = [46, 130, 255];
@@ -397,7 +400,8 @@ export class CurveEngine {
     else {
       const block = 454 + 40 + 75 + 20;
       const top = 90 + Math.max(0, LH - 150 - block) / 2;
-      yAxis = Math.round(clamp(top + 40 + 454, 560, LH - 120)) + 0.5;
+      // compact layouts may need a second footer line for the credit
+      yAxis = Math.round(clamp(top + 40 + 454, 560, LH - (compact ? 150 : 120))) + 0.5;
     }
     this.LY = {
       LW,
@@ -422,6 +426,8 @@ export class CurveEngine {
     };
     this.stage.style.width = cw + "px";
     this.stage.style.height = ch + "px";
+    this.stage.style.setProperty("--u", String(this.LY.u));
+    this.stage.style.setProperty("--credit-y", this.LY.footY * this.LY.u + "px");
     this.canvas.style.width = cw + "px";
     this.canvas.style.height = ch + "px";
     this.canvas.width = Math.round(cw * this.dpr);
@@ -672,7 +678,10 @@ export class CurveEngine {
     if (nC && nM) seg(" + ", "#717171");
     if (nM) seg(`${nM} ${noun("matcha", nM)}`, rgba(DRINK_INFO.matcha.color, 0.85));
     seg(sub.slice(parts.join(" + ").length), "#717171");
-    this.text(this.footerText(), LY.padX, LY.footY, 20, "#d8d8d8");
+    // footer status on the left, credit (HTML, on the footY baseline) on the right; stack them when they don't fit side by side
+    const foot = this.footerText();
+    const fits = LY.padX + this.measure(foot, 20) + 40 + this.measure(CREDIT.text.toUpperCase(), CREDIT_SIZE) <= LY.LW - LY.padX;
+    this.text(foot, LY.padX, fits ? LY.footY : LY.footY - 30, 20, "#d8d8d8");
   }
 
   // ---------- interaction ----------

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { CurveEngine, MAX_CUPS } from "@/lib/engine";
+import { CREDIT, CurveEngine, MAX_CUPS } from "@/lib/engine";
 import { DRINK_INFO, DRINKS, FIELD_GROUPS, fieldRange, fmtT, clamp, type Field, type Settings } from "@/lib/model";
 
 export function CaffeineCurve({ font }: { font: string }) {
@@ -91,6 +91,10 @@ export function CaffeineCurve({ font }: { font: string }) {
             </button>
           </div>
         </div>
+
+        <a className="credit" href={CREDIT.href} target="_blank" rel="noopener noreferrer">
+          {CREDIT.text}
+        </a>
 
         {cfgOpen && (
           <section className="cfg" id="cfg" aria-label="Settings">
